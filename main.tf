@@ -42,9 +42,9 @@ variable "admin_username" {
 }
 
 # Resource group
-resource "azurem_resource_group" "azure_rg" {
+resource "azurerm_resource_group" "azure_rg" {
   name              = "${var.labelPrefix}-A05-RG"
-  location          = "var.region"
+  location          = "${var.region}"
 }
 
 # Virtual Network
@@ -59,7 +59,7 @@ resource "azurerm_virtual_network" "azure_vnet" {
 resource "azurerm_subnet" "azure_subnet" {
   name                  = "${var.labelPrefix}-subnet"
   resource_group_name   = azurerm_resource_group.azure_rg.name
-  virtual_network_name  = azurerm_virtual_network.azure_rg.name
+  virtual_network_name  = azurerm_virtual_network.azure_vnet.name
   address_prefixes      = ["10.0.1.0/24"]
 }
 
@@ -112,7 +112,7 @@ resource "azurerm_network_interface" "azure_nic" {
   ip_configuration {
     name                          = "${var.labelPrefix}-internal-ip"
     subnet_id                     = azurerm_subnet.azure_subnet.id
-    private_ip_address_allocation = "Static"
+    private_ip_address_allocation = "Dynamic"
     public_ip_address_id          = azurerm_public_ip.azure_public_ip.id
   }
 }
@@ -140,11 +140,11 @@ resource "azurerm_linux_virtual_machine" "azure_vm" {
   size                = "Standard_B2s"
   admin_username      = var.admin_username
   network_interface_ids = [
-    azurerm_network_interface.example.id,
+    azurerm_network_interface.azure_nic.id,
   ]
 
   admin_ssh_key {
-    username   = "adminuser"
+    username   = "${var.admin_username}"
     public_key = file("~/.ssh/id_rsa.pub")
   }
 

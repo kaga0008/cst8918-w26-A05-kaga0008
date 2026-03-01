@@ -122,6 +122,17 @@ resource "azurerm_network_interface_security_group_association" "azure_nic_assoc
   network_security_group_id = azurerm_network_security_group.azure_nsg.id
 }
 
+data "cloudinit_config" "azure_init_script" {
+  gzip          = false
+  base64_encode = false
+
+  part {
+    filename     = "init.sh"
+    content_type = "text/x-shellscript"
+    content = file("${path.module}/init.sh")
+  }
+}
+
 resource "azurerm_linux_virtual_machine" "azure_vm" {
   name                = "${var.labelPrefix}-virtual-machine"
   resource_group_name = azurerm_resource_group.azure_rg.name

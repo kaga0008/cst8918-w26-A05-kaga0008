@@ -122,12 +122,12 @@ resource "azurerm_network_interface_security_group_association" "azure_nic_assoc
   network_security_group_id = azurerm_network_security_group.azure_nsg.id
 }
 
-resource "azurerm_linux_virtual_machine" "example" {
-  name                = "azure-virtual-machine"
+resource "azurerm_linux_virtual_machine" "azure_vm" {
+  name                = "${var.labelPrefix}-virtual-machine"
   resource_group_name = azurerm_resource_group.azure_rg.name
   location            = azurerm_resource_group.azure_rg.location
-  size                = "Standard_B2as"
-  admin_username      = "adminuser"
+  size                = "Standard_B2s"
+  admin_username      = var.admin_username
   network_interface_ids = [
     azurerm_network_interface.example.id,
   ]
@@ -138,6 +138,7 @@ resource "azurerm_linux_virtual_machine" "example" {
   }
 
   os_disk {
+    name                 = "${var.labelPrefix}-disk"
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
   }
@@ -149,10 +150,3 @@ resource "azurerm_linux_virtual_machine" "example" {
     version   = "latest"
   }
 }
-
-
-# Notes from Alice
-# Make public IP tier standard not dynamic
-#   Allocation method = standard
-# Make SSH key RSA 
-#   ssh-keygen -t rsa ?
